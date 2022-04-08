@@ -20,12 +20,14 @@ pipeline {
             }
           }
         }
-      }
-    }
-    stage('Secret-scanner') {
-      steps {
-        container('trufflehog') {
-           sh "trufflehog  --regex --entropy=true ./ ${GIT_URL}"
+        stage('Secrets scanner') {
+          steps {
+            container('trufflehog') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                sh "trufflehog -x secrets-exclude.txt ${GIT_URL}"
+              }
+            }
+          }
         }
       }
     }
@@ -42,6 +44,13 @@ pipeline {
           steps {
             container('maven') {
               sh './mvnw test'
+            }
+          }
+        }
+        stage('Dependency check ') {
+          steps {
+            container('maven') {
+              sh './mvnw org.owasp:dependency-check-maven:check'
             }
           }
         }
