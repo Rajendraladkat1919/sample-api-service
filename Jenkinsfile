@@ -57,7 +57,7 @@ pipeline {
           }
           post {
             always {
-              archiveArtifacts allowEmptyArchive: true, artifacts: 'target/dependency-check-report.html', fingerprint: true, onlyIfSuccessful: true
+              archiveArtifacts allowEmptyArchive: true, artifacts: 'target/dependency-check-report.html', fingerprint: true, onlyIfSuccessful: false
               dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
             }
           }
@@ -68,6 +68,24 @@ pipeline {
       steps {
         container('docker-tools') {
           sh "docker build . -t ${APP_NAME}"
+        }
+      }
+    }
+    stage('Artefact Analysis') {
+      parallel {
+        stage('Contianer Scan') {
+          steps {
+            container('docker-tools') {
+              sh "grype ${APP_NAME}"
+            }
+          }
+        }
+        stage('Container Audit') {
+          steps {
+            container('docker-tools') {
+              sh "dockle ${APP_NAME}"
+            }
+          }
         }
       }
     }
