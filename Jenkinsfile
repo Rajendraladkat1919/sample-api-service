@@ -22,6 +22,13 @@ pipeline {
         }
       }
     }
+    stage('Secret-scanner') {
+      steps {
+        container('trufflehog') {
+           sh "trufflehog  --regex --entropy=true ./ ${GIT_URL}"
+        }
+      }
+    }
     stage('Build') {
       steps {
         container('maven') {
