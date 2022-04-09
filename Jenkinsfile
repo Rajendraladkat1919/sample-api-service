@@ -155,8 +155,6 @@ pipeline {
             }
           }
         }
-      }
-    }
 
     stage('Promote to Prod') {
       steps {
