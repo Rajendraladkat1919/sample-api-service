@@ -119,6 +119,7 @@ pipeline {
         }
       }
     }
+
     stage('Publish') {
       steps {
         container('docker-tools') {
@@ -145,6 +146,18 @@ pipeline {
         }
       }
     }
+
+       stage('DSAT') {
+          steps {
+            container('docker-tools') {
+              sh "docker pull owasp/zap2docker-weekly"
+              sh "docker run -t owasp/zap2docker-weekly zap-api-scan.py -t http://172.17.0.4:30001/v3/api-docs -f openapi"
+            }
+          }
+        }
+      }
+    }
+
     stage('Promote to Prod') {
       steps {
         container('docker-tools') {
