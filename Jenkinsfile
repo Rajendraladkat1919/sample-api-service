@@ -127,6 +127,16 @@ pipeline {
         }
       }
     }
+    stage('Kubesec') {
+      steps {
+        container('docker-tools') {
+          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
+          echo "Scanning the kube yaml files"
+          sh "kubesec scan k8s.yaml"
+        }
+      }
+    }
+
     stage('Deploy to Dev') {
       steps {
         container('docker-tools') {
